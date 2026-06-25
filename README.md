@@ -70,6 +70,43 @@ El repositorio incluye capturas de:
 * Manejo de errores.
 * Ejecución exitosa del flujo.
 
+  ## Base de Datos
+
+Enlace Airtable (Modo Lectura)
+https://airtable.com/appRvUqBFFJfMH4JW/shrZeLWtHNmlfzfTg
+
+La base de datos almacena temas de contenido, resultados generados por IA, estados del flujo y registros de errores.
+
+## Trigger Automático
+
+El sistema opera mediante un disparador automático conectado a Airtable.
+
+Cuando se detecta un nuevo registro con estado "Pendiente", el workflow inicia automáticamente el procesamiento sin intervención manual.
+
+## Prevención de Bucles
+
+Para evitar ejecuciones repetidas:
+
+Solo se procesan registros con estado:
+
+* Pendiente
+
+Los estados:
+
+* Procesado IA
+* Aprobado Humano
+* Rechazado
+* Error
+
+son excluidos del procesamiento.
+
+## Estrategia de Resiliencia
+
+El sistema contempla manejo de errores mediante rutas de recuperación y registro automático de incidencias.
+
+Cualquier excepción detectada actualiza Airtable con el estado Error y registra la información correspondiente para auditoría.
+
+
 ## Conclusión
 
 La solución desarrollada demuestra la integración de automatización, inteligencia artificial, almacenamiento de datos y validación humana dentro de un ecosistema empresarial moderno, cumpliendo con los requisitos establecidos para la entrega final.
