@@ -1,0 +1,116 @@
+{
+  "name": "Coderhouse_Final_Ecosistema_IA",
+  "nodes": [
+    {
+      "name": "01_Manual_Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "notes": "Inicio manual"
+    },
+    {
+      "name": "02_Leer_Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "notes": "Buscar Estado=Pendiente"
+    },
+    {
+      "name": "03_Validar_Datos",
+      "type": "n8n-nodes-base.if",
+      "notes": "Validar Tema y PublicoObjetivo"
+    },
+    {
+      "name": "04_Generar_Contenido_IA",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "notes": "GPT-4o genera contenido"
+    },
+    {
+      "name": "05_Guardar_Resultado_IA",
+      "type": "n8n-nodes-base.airtable",
+      "notes": "Guardar ContenidoIA y Estado=Procesado IA"
+    },
+    {
+      "name": "06_Enviar_Aprobacion",
+      "type": "n8n-nodes-base.gmail",
+      "notes": "Enviar correo para aprobación"
+    },
+    {
+      "name": "07_Wait_For_Approval",
+      "type": "n8n-nodes-base.wait",
+      "notes": "Human In The Loop"
+    },
+    {
+      "name": "08_Validar_Respuesta",
+      "type": "n8n-nodes-base.if",
+      "notes": "APROBADO o RECHAZADO"
+    },
+    {
+      "name": "09_Aprobado",
+      "type": "n8n-nodes-base.airtable",
+      "notes": "Estado=Aprobado Humano"
+    },
+    {
+      "name": "10_Rechazado",
+      "type": "n8n-nodes-base.airtable",
+      "notes": "Estado=Rechazado"
+    },
+    {
+      "name": "11_Enviar_Contenido_Final",
+      "type": "n8n-nodes-base.gmail",
+      "notes": "Enviar contenido aprobado"
+    },
+    {
+      "name": "99_Error_Handler",
+      "type": "n8n-nodes-base.airtable",
+      "notes": "Estado=Error y observaciones"
+    }
+  ],
+  "connections": {
+    "01_Manual_Trigger": [
+      "02_Leer_Airtable"
+    ],
+    "02_Leer_Airtable": [
+      "03_Validar_Datos"
+    ],
+    "03_Validar_Datos": {
+      "true": [
+        "04_Generar_Contenido_IA"
+      ],
+      "false": [
+        "99_Error_Handler"
+      ]
+    },
+    "04_Generar_Contenido_IA": [
+      "05_Guardar_Resultado_IA"
+    ],
+    "05_Guardar_Resultado_IA": [
+      "06_Enviar_Aprobacion"
+    ],
+    "06_Enviar_Aprobacion": [
+      "07_Wait_For_Approval"
+    ],
+    "07_Wait_For_Approval": [
+      "08_Validar_Respuesta"
+    ],
+    "08_Validar_Respuesta": {
+      "approved": [
+        "09_Aprobado"
+      ],
+      "rejected": [
+        "10_Rechazado"
+      ]
+    },
+    "09_Aprobado": [
+      "11_Enviar_Contenido_Final"
+    ]
+  },
+  "airtable": {
+    "base": "Marketing IA",
+    "table": "Contenido",
+    "states": [
+      "Pendiente",
+      "Procesado IA",
+      "Aprobado Humano",
+      "Rechazado",
+      "Error"
+    ]
+  },
+  "openaiPrompt": "Eres un especialista en marketing digital y creación de contenido para redes sociales.\n\nTema: {{$json['Tema']}}\nPúblico objetivo: {{$json['PublicoObjetivo']}}\n\nGenera:\n- Un título atractivo\n- Un texto para Instagram\n- Cinco hashtags\n- Un llamado a la acción\n\nFormato:\nTÍTULO:\nPOST:\nHASHTAGS:\nCTA:"
+}
